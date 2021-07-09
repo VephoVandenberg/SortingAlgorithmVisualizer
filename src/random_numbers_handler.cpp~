@@ -1,0 +1,13 @@
+#include "random_numbers_handler.h"
+
+void Randomizer::generate_random_numbers(unsigned int number_of_values,
+					 float *values)
+{
+    for (int i = 0; i < number_of_values; i++)
+    {
+	int generated_number = rand() % 100 + 2;
+	values[i] = 1.0f/(float)generated_number;
+	std::cout << values[i] << std::endl;
+    }
+}
+
