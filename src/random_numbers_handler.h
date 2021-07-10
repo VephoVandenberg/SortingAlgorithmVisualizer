@@ -10,6 +10,7 @@ class Randomizer
 public:
     void generate_random_numbers(unsigned int number_of_values,
 				 float *values);
+    void shuffle_numbers(float *values, unsigned int size);
 };
 
 #endif

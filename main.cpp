@@ -9,15 +9,30 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
-#include <time.h>
+#include <thread>
+#include <chrono>
 
 const unsigned int width = 800;
 const unsigned int height = 500;
 
-void delay_time(unsigned int milli_seconds);
-void render_out(unsigned int size,
+void delay_time(void);
+void render_out(unsigned int front_border,
+		unsigned int back_border,
 		float *array,
-		Shader &shader_handler);
+		Shader &shader_handler,
+		GLFWwindow *window);
+void bubble_sort(float *array,
+		 unsigned int size,
+		 Shader &shader_handler,
+		 GLFWwindow *window);
+void insertion_sort(float *array,
+		    unsigned int size,
+		    Shader &shader_handler,
+		    GLFWwindow *window);
+void selection_sort(float *array,
+		    unsigned int size,
+		    Shader &shader_handler,
+		    GLFWwindow *window);
 
 int main(int argc, char **argv)
 {
@@ -31,7 +46,6 @@ int main(int argc, char **argv)
 					  height,
 					  "Sorting algorithms",
 					  0, 0);
-    glfwSwapInterval(1);
     glfwMakeContextCurrent(window);
     if (glewInit() != GLEW_OK)
     {
@@ -70,34 +84,25 @@ int main(int argc, char **argv)
     while (!glfwWindowShouldClose(window))
     {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT);	
-	for (int i = 0; i < size; i++)
-	{
-	    for (int v = 0; v < size - 1; v++)
-	    {
-		if (array[v] > array[v + 1])
-		{
-		    float temp = array[v];
-		    array[v] = array[v + 1];
-		    array[v + 1] = temp;
-		    break;
-		}
-	    }
-	    render_out(size, array, bar_shader_handler);
-	    break;
-	}
+	glClear(GL_COLOR_BUFFER_BIT);
 	
-	glfwSwapBuffers(window);
+	bubble_sort(array, size, bar_shader_handler, window);
+
+	glfwSwapBuffers(window);	
 	glfwPollEvents();
     }
     return 0;
 }
 
-void render_out(unsigned int size,
+void render_out(unsigned int first_border,
+		unsigned int back_border,
 		float *array,
-		Shader &shader_handler)
+		Shader &shader_handler,
+		GLFWwindow *window)
 {
-    for (int i = 0; i < size; i++)
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    for (int i = first_border; i <= back_border; i++)
     {
 	glm::mat4 position;
 	position = translate(position, glm::vec3(0.005f*i - 1.0f, array[i] - 1.0f, 0.0f));
@@ -105,12 +110,79 @@ void render_out(unsigned int size,
 	shader_handler.set_matrix("transform", position);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
+    glfwSwapBuffers(window);
 }
 
-void delay_time(unsigned int milli_seconds)
+void delay_time(void)
 {
-    clock_t start_time = clock();
-    while (clock() < start_time + milli_seconds)
-	;
+    int time = 10000;
+
+    for (int i = 0; i < time; i++);
 }
 
+void bubble_sort(float *array,
+		 unsigned int size,
+		 Shader &shader_handler,
+		 GLFWwindow *window)
+{
+    for (int i = 0; i < size; i++)
+    {	      	
+	for (int v = 0; v < size - 1; v++)
+	{
+	    if (array[v] > array[v + 1])
+	    {
+		float temp = array[v];
+		array[v] = array[v + 1];
+		array[v + 1] = temp;
+	    }
+	    render_out(0, size - 1, array, shader_handler, window);
+	    glfwPollEvents();
+	}
+	glfwPollEvents();
+    }
+}
+
+void insertion_sort(float *array,
+		    unsigned int size,
+		    Shader &shader_handler,
+		    GLFWwindow *window)
+{
+
+    for (int i = 1; i < size; i++)
+    {
+	for (int j = i; j > 0; j--)
+	{
+	    if (array[j] < array[j - 1])
+	    {
+		float temp = array[j];
+		array[j] = array[j - 1];
+		array[j - 1] = temp;
+	    }
+	    render_out(0, size - 1, array, shader_handler, window);
+	}
+    }
+}
+
+void selection_sort(float *array,
+		    unsigned int size,
+		    Shader &shader_handler,
+		    GLFWwindow *window)
+{
+    int minimum;
+    
+    
+    for (int i = 0; i < size; i++)
+    {
+	for (int j = i, minimum = i; j < size; j++)
+	{
+	    if (array[minimum] > array[j])
+	    {
+		minimum = j;
+	    }
+	}
+	float temp = array[i];
+	array[i] = array[minimum];
+	array[minimum] = temp;
+	render_out(0, size - 1, array, shader_handler, window);
+    }
+}

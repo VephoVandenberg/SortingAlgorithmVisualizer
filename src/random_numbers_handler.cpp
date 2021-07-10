@@ -11,3 +11,7 @@ void Randomizer::generate_random_numbers(unsigned int number_of_values,
     std::random_shuffle(&values[0], &values[number_of_values]);
 }
 
+void Randomizer::shuffle_numbers(float *values, unsigned int size)
+{
+    std::random_shuffle(&values[0], &values[size - 1]);
+}
