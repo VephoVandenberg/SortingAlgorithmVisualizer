@@ -9,13 +9,15 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
-#include <thread>
-#include <chrono>
 
 const unsigned int width = 800;
 const unsigned int height = 500;
 
-void delay_time(void);
+void key_callback(GLFWwindow *window,
+		  int key,
+		  int scancode,
+		  int action,
+		  int mods);
 void render_out(unsigned int front_border,
 		unsigned int back_border,
 		float *array,
@@ -111,13 +113,6 @@ void render_out(unsigned int first_border,
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
     glfwSwapBuffers(window);
-}
-
-void delay_time(void)
-{
-    int time = 10000;
-
-    for (int i = 0; i < time; i++);
 }
 
 void bubble_sort(float *array,
