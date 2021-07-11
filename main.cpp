@@ -4,9 +4,8 @@
 #include "src/vertex_array_handler.h"
 #include "src/vertex_buffer_handler.h"
 #include "src/index_buffer_handler.h"
+#include "src/sorting_visualizer.h"
 #include "src/shader_handler.h"
-
-#include <GLFW/glfw3.h>
 
 #include <iostream>
 
@@ -20,23 +19,6 @@ void key_callback(GLFWwindow *window,
 		  int scancode,
 		  int action,
 		  int mods);
-void render_out(unsigned int front_border,
-		unsigned int back_border,
-		float *array,
-		Shader &shader_handler,
-		GLFWwindow *window);
-void bubble_sort(float *array,
-		 unsigned int size,
-		 Shader &shader_handler,
-		 GLFWwindow *window);
-void insertion_sort(float *array,
-		    unsigned int size,
-		    Shader &shader_handler,
-		    GLFWwindow *window);
-void selection_sort(float *array,
-		    unsigned int size,
-		    Shader &shader_handler,
-		    GLFWwindow *window);
 
 int main(int argc, char **argv)
 {
@@ -87,12 +69,13 @@ int main(int argc, char **argv)
     bar_shader_handler.use();
 
     unsigned int input;
+    SortingVisualizer visualizer(&is_running);
     while (!glfwWindowShouldClose(window) && input != 0)
     {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	render_out(0, size - 1, array,  bar_shader_handler, window);
+	visualizer.visualize(0, size - 1, array, bar_shader_handler, window);
 	std::cout << "If you want to terminate the sorting process hit ESC." << std::endl;
 	std::cout << "0 - Exit." << std::endl;
 	std::cout << "1 - Bubble sort." << std::endl;
@@ -112,17 +95,17 @@ int main(int argc, char **argv)
 	    
 	    case 1:
 	    {
-		bubble_sort(array, size, bar_shader_handler, window);
+		visualizer.bubble_sort(array, size, bar_shader_handler, window);
 	    }break;
 
 	    case 2:
 	    {
-		selection_sort(array, size, bar_shader_handler, window);
+		visualizer.selection_sort(array, size, bar_shader_handler, window);
 	    }break;
 	    
 	    case 3:
 	    {
-	        insertion_sort(array, size, bar_shader_handler, window);
+	        visualizer.insertion_sort(array, size, bar_shader_handler, window);
 	    }break;
 
 	    default:
@@ -137,111 +120,6 @@ int main(int argc, char **argv)
     }
     return 0;
 }
-
-void render_out(unsigned int first_border,
-		unsigned int back_border,
-		float *array,
-		Shader &shader_handler,
-		GLFWwindow *window)
-{
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    for (int i = first_border; i <= back_border; i++)
-    {
-	glm::mat4 position;
-	position = translate(position, glm::vec3(0.005f*i - 1.0f, array[i] - 1.0f, 0.0f));
-	position = scale(position, glm::vec3(1.0f, array[i], 1.0f));
-	shader_handler.set_matrix("transform", position);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    }
-    glfwSwapBuffers(window);
-}
-
-void bubble_sort(float *array,
-		 unsigned int size,
-		 Shader &shader_handler,
-		 GLFWwindow *window)
-{
-    for (int i = 0; i < size; i++)
-    {	      	
-	for (int v = 0; v < size - 1; v++)
-	{
-	    if (array[v] > array[v + 1])
-	    {
-		float temp = array[v];
-		array[v] = array[v + 1];
-		array[v + 1] = temp;
-	    }
-	    
-	    render_out(0, size - 1, array, shader_handler, window);	    
-	}
-	if (!is_running)
-	{
-	    break;
-	}
-	glfwPollEvents();
-    }
-}
-
-void insertion_sort(float *array,
-		    unsigned int size,
-		    Shader &shader_handler,
-		    GLFWwindow *window)
-{
-
-    for (int i = 1; i < size; i++)
-    {
-	for (int j = i; j > 0; j--)
-	{
-	    if (array[j] < array[j - 1])
-	    {
-		float temp = array[j];
-		array[j] = array[j - 1];
-		array[j - 1] = temp;
-	    }
-	    render_out(0, size - 1, array, shader_handler, window);
-	}
-	if (!is_running)
-	{
-	    break;
-	}
-	glfwPollEvents();
-    }
-}
-
-void selection_sort(float *array,
-		    unsigned int size,
-		    Shader &shader_handler,
-		    GLFWwindow *window)
-{
-    int i, j, min_idx;
- 
-    // One by one move boundary of unsorted subarray
-    for (i = 0; i < size-1; i++)
-    {
-        // Find the minimum element in unsorted array
-        min_idx = i;
-        for (j = i+1; j < size; j++)
-	{
-	    if (array[j] < array[min_idx])
-	    {
-		min_idx = j;
-	    }
-	    render_out(0, size - 1, array, shader_handler, window);
-	}
-        // Swap the found minimum element with the first element
-	float temp = array[i];
-	array[i] = array[min_idx];
-	array[min_idx] = temp;
-	if (!is_running)
-	{
-	    break;
-	}
-	glfwPollEvents();
-    }
-
-}
-
 
 void key_callback(GLFWwindow *window,
 		  int key,
