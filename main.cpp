@@ -13,6 +13,8 @@
 const unsigned int width = 800;
 const unsigned int height = 500;
 
+static bool is_running = true;
+
 void key_callback(GLFWwindow *window,
 		  int key,
 		  int scancode,
@@ -43,11 +45,12 @@ int main(int argc, char **argv)
 	std::cout << "Could not initialize GLFW" << std::endl;
     }
     
-
+    
     GLFWwindow *window = glfwCreateWindow(width,
 					  height,
 					  "Sorting algorithms",
 					  0, 0);
+    glfwSetKeyCallback(window, key_callback);
     glfwMakeContextCurrent(window);
     if (glewInit() != GLEW_OK)
     {
@@ -82,13 +85,52 @@ int main(int argc, char **argv)
 
     Shader bar_shader_handler("shaders/vertex_shader.vert", "shaders/fragment_shader.frag");
     bar_shader_handler.use();
-    
-    while (!glfwWindowShouldClose(window))
+
+    unsigned int input;
+    while (!glfwWindowShouldClose(window) && input != 0)
     {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-	
-	bubble_sort(array, size, bar_shader_handler, window);
+
+	render_out(0, size - 1, array,  bar_shader_handler, window);
+	std::cout << "If you want to terminate the sorting process hit ESC." << std::endl;
+	std::cout << "0 - Exit." << std::endl;
+	std::cout << "1 - Bubble sort." << std::endl;
+	std::cout << "2 - Selection sort." << std::endl;
+	std::cout << "3 - Insertion sort." << std::endl;
+	std::cout << "Your choice: ";		     
+	std::cin >> input;
+
+	is_running = true;
+	randomizer.shuffle_numbers(array, size);
+	switch(input)
+	{
+	    case 0:
+	    {
+		std::cout << "Bye" << std::endl;
+	    }break;
+	    
+	    case 1:
+	    {
+		bubble_sort(array, size, bar_shader_handler, window);
+	    }break;
+
+	    case 2:
+	    {
+		selection_sort(array, size, bar_shader_handler, window);
+	    }break;
+	    
+	    case 3:
+	    {
+	        insertion_sort(array, size, bar_shader_handler, window);
+	    }break;
+
+	    default:
+	    {
+		std::cout << "Illegal choice." << std::endl;
+	    }break;
+	    
+	}
 
 	glfwSwapBuffers(window);	
 	glfwPollEvents();
@@ -130,8 +172,12 @@ void bubble_sort(float *array,
 		array[v] = array[v + 1];
 		array[v + 1] = temp;
 	    }
-	    render_out(0, size - 1, array, shader_handler, window);
-	    glfwPollEvents();
+	    
+	    render_out(0, size - 1, array, shader_handler, window);	    
+	}
+	if (!is_running)
+	{
+	    break;
 	}
 	glfwPollEvents();
     }
@@ -155,6 +201,11 @@ void insertion_sort(float *array,
 	    }
 	    render_out(0, size - 1, array, shader_handler, window);
 	}
+	if (!is_running)
+	{
+	    break;
+	}
+	glfwPollEvents();
     }
 }
 
@@ -163,21 +214,54 @@ void selection_sort(float *array,
 		    Shader &shader_handler,
 		    GLFWwindow *window)
 {
-    int minimum;
-    
-    
-    for (int i = 0; i < size; i++)
+    int i, j, min_idx;
+ 
+    // One by one move boundary of unsorted subarray
+    for (i = 0; i < size-1; i++)
     {
-	for (int j = i, minimum = i; j < size; j++)
+        // Find the minimum element in unsorted array
+        min_idx = i;
+        for (j = i+1; j < size; j++)
 	{
-	    if (array[minimum] > array[j])
+	    if (array[j] < array[min_idx])
 	    {
-		minimum = j;
+		min_idx = j;
 	    }
+	    render_out(0, size - 1, array, shader_handler, window);
 	}
+        // Swap the found minimum element with the first element
 	float temp = array[i];
-	array[i] = array[minimum];
-	array[minimum] = temp;
-	render_out(0, size - 1, array, shader_handler, window);
+	array[i] = array[min_idx];
+	array[min_idx] = temp;
+	if (!is_running)
+	{
+	    break;
+	}
+	glfwPollEvents();
+    }
+
+}
+
+
+void key_callback(GLFWwindow *window,
+		  int key,
+		  int scancode,
+		  int action,
+		  int mods)
+{
+    switch(key)
+    {
+	case GLFW_KEY_ESCAPE:
+	{
+	    if (action == GLFW_PRESS)
+	    {
+		is_running = false;
+	    }
+	}break;
+
+	default:
+	{
+	    
+	}break;
     }
 }
