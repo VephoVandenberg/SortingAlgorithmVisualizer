@@ -68,7 +68,7 @@ int main(int argc, char **argv)
     Shader bar_shader_handler("shaders/vertex_shader.vert", "shaders/fragment_shader.frag");
     bar_shader_handler.use();
 
-    unsigned int input;
+    unsigned int input = 5;
     SortingVisualizer visualizer(&is_running);
     while (!glfwWindowShouldClose(window) && input != 0)
     {
@@ -81,8 +81,10 @@ int main(int argc, char **argv)
 	std::cout << "1 - Bubble sort." << std::endl;
 	std::cout << "2 - Selection sort." << std::endl;
 	std::cout << "3 - Insertion sort." << std::endl;
+	std::cout << "4 - Merge sort." << std::endl;
 	std::cout << "Your choice: ";		     
 	std::cin >> input;
+	std::cout << std::endl;
 
 	is_running = true;
 	randomizer.shuffle_numbers(array, size);
@@ -106,6 +108,11 @@ int main(int argc, char **argv)
 	    case 3:
 	    {
 	        visualizer.insertion_sort(array, size, bar_shader_handler, window);
+	    }break;
+
+	    case 4:
+	    {
+		visualizer.merge_sort(array, 0, size - 1, size, bar_shader_handler, window);
 	    }break;
 
 	    default:

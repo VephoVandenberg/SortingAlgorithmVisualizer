@@ -85,6 +85,87 @@ void  SortingVisualizer::insertion_sort(float *array,
     }
 }
 
+void SortingVisualizer::merge(float *array,
+			      int low, int high, int mid,
+			      unsigned int size,
+			      Shader &shader_handler,
+			      GLFWwindow *window)
+{
+    int left_len = (mid - low) + 1;
+    int right_len = (high - mid);
+    
+    float *left_part = new float[left_len];
+    float *right_part = new float[right_len];
+
+    int i, j;
+    int part_counter;
+
+    for (i = 0; i < left_len; i++)
+    {
+	left_part[i] = array[low + i];
+    }
+
+    for (j = 0; j < right_len; j++)
+    {
+	right_part[j] = array[mid + 1 + j];
+    }
+
+    i = j = 0;
+    int index = low;
+    while (i < left_len && j < right_len)
+    {
+	if (left_part[i] <= right_part[j])
+	{
+	    array[index++] = left_part[i++];	    
+	}
+	else
+	{
+	    array[index++] = right_part[j++];
+	}
+	visualize(0, size - 1, array, shader_handler, window);
+    }
+
+    while (i < left_len)
+    {
+	array[index++] = left_part[i++];
+	visualize(0, size - 1, array, shader_handler, window);
+    }
+
+    while (j < right_len)
+    {
+	array[index++] = right_part[j++];
+	visualize(0, size - 1, array, shader_handler, window);       	
+    }
+    delete [] left_part;
+    delete [] right_part;
+}
+
+void SortingVisualizer::merge_sort(float *array,
+				   int low, int high,
+				   unsigned int size,
+				   Shader &shader_handler,
+				   GLFWwindow *window)
+{
+    if (low < high)
+    {
+	int mid = low + (high - low) / 2;
+	merge_sort(array,
+		   low, mid,
+		   size,
+		   shader_handler, window);
+	
+	merge_sort(array,
+		   mid + 1, high,
+		   size,
+		   shader_handler, window);
+
+	merge(array,
+	      low, high, mid,
+	      size,
+	      shader_handler, window);
+    }
+}
+
 void  SortingVisualizer::visualize(unsigned int first_border,
 				   unsigned int back_border,
 				   float *array,
