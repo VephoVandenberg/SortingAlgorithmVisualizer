@@ -1,5 +1,3 @@
-#define GLEW_STATIC
-
 #include "src/random_numbers_handler.h"
 #include "src/vertex_array_handler.h"
 #include "src/vertex_buffer_handler.h"

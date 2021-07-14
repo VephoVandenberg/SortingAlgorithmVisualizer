@@ -5,6 +5,8 @@ SortingVisualizer::SortingVisualizer(bool *state)
     is_running = state;
 }
 
+
+
 void SortingVisualizer::bubble_sort(float *array,
 				    unsigned int size,
 				    Shader &shader_handler,
